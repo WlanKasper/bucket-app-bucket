@@ -1,37 +1,9 @@
 export type Config = {
-  ENV: string;
-
-  AUTH_DISCOVERY_URL: string;
-  AUTH_CLIENT_ID: string;
-  AUTH_LOGOUT_URL: string;
-  AUTH_LOGOUT_SUCCESS_URL: string;
-  AUTH_SCOPES: string;
-  AUTH_RESOURCE_SERVER: string;
-
-  SCANDIT_IOS_KEY: string;
-  SCANDIT_ANDROID_KEY: string;
-
-  SAG_CLOUD_ENDPOINT: string;
-  SAG_CLOUD_USER: string;
-  SAG_CLOUD_PASSWORD: string;
+  BUCKET_SERVER_ENDPOINT: string;
 };
 
 const config: Config = {
-  ENV: process.env.EXPO_PUBLIC_APP_ENV || "",
-
-  AUTH_DISCOVERY_URL: process.env.EXPO_PUBLIC_AUTH_DISCOVERY_URL || "",
-  AUTH_CLIENT_ID: process.env.EXPO_PUBLIC_AUTH_CLIENT_ID || "",
-  AUTH_LOGOUT_URL: process.env.EXPO_PUBLIC_AUTH_LOGOUT_URL || "",
-  AUTH_LOGOUT_SUCCESS_URL: process.env.EXPO_PUBLIC_AUTH_LOGOUT_SUCCESS_URL || "",
-  AUTH_SCOPES: process.env.EXPO_PUBLIC_AUTH_SCOPES || "",
-  AUTH_RESOURCE_SERVER: process.env.EXPO_PUBLIC_AUTH_RESOURCE_SERVER || "",
-
-  SCANDIT_IOS_KEY: process.env.EXPO_PUBLIC_SCANDIT_IOS_KEY || "",
-  SCANDIT_ANDROID_KEY: process.env.EXPO_PUBLIC_SCANDIT_ANDROID_KEY || "",
-
-  SAG_CLOUD_ENDPOINT: process.env.EXPO_PUBLIC_SAG_CLOUD_ENDPOINT || "",
-  SAG_CLOUD_USER: process.env.EXPO_PUBLIC_SAG_CLOUD_USER || "",
-  SAG_CLOUD_PASSWORD: process.env.EXPO_PUBLIC_SAG_CLOUD_PASSWORD || "",
+  BUCKET_SERVER_ENDPOINT: process.env.EXPO_PUBLIC_APP_BUCKET_SERVER_ENDPOINT || "",
 };
 
 export default config;

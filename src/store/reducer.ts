@@ -1,7 +1,7 @@
 import { combineReducers } from "redux";
 
-import { homeReducer } from "./home";
+import { bucketReducer } from "./bucket";
 
 export default combineReducers({
-  home: homeReducer
+  bucket: bucketReducer
 });

@@ -1,9 +1,9 @@
 import { all } from "redux-saga/effects";
 
-import { homeSagas } from "./home";
+import { bucketSagas } from "./bucket";
 
 export default function* rootSaga() {
   yield all([
-    ...homeSagas,
+    ...bucketSagas,
   ]);
 }

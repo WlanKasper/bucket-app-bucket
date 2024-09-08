@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,41 +9,79 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Checkbox } from "expo-checkbox";
-import { useSelector } from "react-redux";
-import { homeSelectors } from "@/store/home";
-import { Bucket } from "@/model/home";
+import { useDispatch, useSelector } from "react-redux";
+import { bucketActions, bucketSelectors } from "@/store/bucket";
+import { Bucket, BucketPatchRequest } from "@/model/bucket";
 import uuid from "react-native-uuid";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 
 const Home: React.FC = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const buckets = useSelector(homeSelectors.buckets);
+  const buckets = useSelector(bucketSelectors.buckets);
+  const isLoading = useSelector(bucketSelectors.isLoading);
 
   const [selectedBucket, setSelectedBucket] = useState<Bucket>(buckets[0]);
   const [newItemId, setNewItemId] = useState<string>("");
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const updatedSelectedBucket = buckets.find(
+      (bucket) => bucket._id === selectedBucket._id
+    );
+    
+    if (updatedSelectedBucket) {
+      setSelectedBucket(updatedSelectedBucket);
+    }
+  }, [buckets]);
 
   const handleUpdateData = (text: string, dataId: string) => {
-    const updatedData = selectedBucket.data.map((item) =>
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+  
+    const updatedLocalData = selectedBucket.data.map((item) =>
       item.id === dataId ? { ...item, data: text } : item
     );
-    setSelectedBucket({ ...selectedBucket, data: updatedData });
+  
+    setSelectedBucket((prevBucket) => ({
+      ...prevBucket,
+      data: updatedLocalData,
+    }));
+  
+    const newTimeout = setTimeout(() => {
+      const patchRequest: BucketPatchRequest = {
+        id: selectedBucket._id,
+        data: updatedLocalData,
+      };
+  
+      dispatch(bucketActions.sagaPatchBucketById(patchRequest));
+    }, 5000); // 5-second delay
+  
+    setTypingTimeout(newTimeout);
   };
+  
 
   const handleCheckboxChange = (checked: boolean, dataId: string) => {
     const updatedData = selectedBucket.data.map((item) =>
       item.id === dataId ? { ...item, isChecked: checked } : item
     );
-    setSelectedBucket({ ...selectedBucket, data: updatedData });
+    const patchRequest: BucketPatchRequest = {
+      id: selectedBucket._id,
+      data: updatedData,
+    };
+
+    dispatch(bucketActions.sagaPatchBucketById(patchRequest));
   };
 
   const handleAddItem = () => {
     const newItemId = `${uuid.v4()}`;
 
     setNewItemId(newItemId);
-    setSelectedBucket({
-      ...selectedBucket,
+    const patchRequest: BucketPatchRequest = {
+      id: selectedBucket._id,
       data: [
         ...selectedBucket.data,
         {
@@ -52,7 +90,9 @@ const Home: React.FC = () => {
           isChecked: false,
         },
       ],
-    });
+    }
+
+    dispatch(bucketActions.sagaPatchBucketById(patchRequest));
   };
 
   const handleOpenSettings = () => {
@@ -67,9 +107,9 @@ const Home: React.FC = () => {
         </TouchableOpacity>
         {buckets.map((bucket) => (
           <TouchableOpacity
-            key={bucket.id}
+            key={bucket._id}
             style={
-              bucket.id === selectedBucket.id
+              bucket._id === selectedBucket._id
                 ? styles.actionSelected
                 : styles.action
             }

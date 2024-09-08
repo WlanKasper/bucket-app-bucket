@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Avatar, Button, Icon, ListItem } from "@rneui/themed";
+import { Button, Icon, ListItem } from "@rneui/themed";
 import { useSelector } from "react-redux";
-import { homeSelectors } from "@/store/home";
+import { bucketSelectors } from "@/store/bucket";
 import { Text } from "react-native";
 
 const SettingsModal: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
 
-  const buckets = useSelector(homeSelectors.buckets);
+  const buckets = useSelector(bucketSelectors.buckets);
 
   return (
     <SafeAreaView>
@@ -39,7 +39,7 @@ const SettingsModal: React.FC = () => {
       >
         {buckets.map((bucket) => (
           <ListItem.Swipeable
-            key={bucket.id}
+            key={bucket._id}
             bottomDivider
             leftWidth={100}
             leftContent={(action) => (
