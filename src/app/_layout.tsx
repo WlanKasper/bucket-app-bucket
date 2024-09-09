@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Provider as ReduxProvider, useDispatch, useSelector } from "react-redux";
 import { Stack } from "expo-router";
 import configureStore from "@/store/configureStore";

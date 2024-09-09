@@ -33,8 +33,8 @@ function* createBucketFlow({ payload }: { payload: BucketCreateRequest }) {
       return;
     }
 
-    if (result && result.length > 0) {
-      yield put(bucketActions.setBuckets(result));
+    if (result) {
+      yield put(bucketActions.createBucket(result));
     }
   } finally {
     console.debug("[👀] createBucketFlow - end");
@@ -123,8 +123,8 @@ function* deleteBucketByIdFlow({ payload }: { payload: string }) {
   const cancelSource = axios.CancelToken.source();
 
   try {
-    const { result, error }: SagaReturnType<typeof safe<Bucket[]>> = yield safe<
-      Bucket[]
+    const { result, error }: SagaReturnType<typeof safe<Bucket>> = yield safe<
+      Bucket
     >(call(deleteBucketById, cancelSource, payload));
 
     if (error) {
@@ -132,8 +132,8 @@ function* deleteBucketByIdFlow({ payload }: { payload: string }) {
       return;
     }
 
-    if (result && result.length > 0) {
-      // yield put(bucketActions.setBuckets(result));
+    if (result) {
+      yield put(bucketActions.deleteBucket(result));
     }
   } finally {
     console.debug("[👀] deleteBucketByIdFlow - end");
@@ -172,7 +172,7 @@ function* watchPatchBucketById() {
 
 function* watchDeleteBucketById() {
   yield takeLatest<PayloadAction<string>>(
-    bucketActions.sagaDeteleBucketById.type,
+    bucketActions.sagaDeleteBucketById.type,
     deleteBucketByIdFlow
   );
 }

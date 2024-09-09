@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -25,44 +25,20 @@ const Home: React.FC = () => {
 
   const [selectedBucket, setSelectedBucket] = useState<Bucket>(buckets[0]);
   const [newItemId, setNewItemId] = useState<string>("");
-  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
+  const textInputRefs = useRef<{ [key: string]: TextInput | null }>({}); // Ref to hold TextInput refs
 
   useEffect(() => {
     const updatedSelectedBucket = buckets.find(
       (bucket) => bucket._id === selectedBucket._id
     );
-    
+
     if (updatedSelectedBucket) {
       setSelectedBucket(updatedSelectedBucket);
     }
   }, [buckets]);
-
-  const handleUpdateData = (text: string, dataId: string) => {
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
-  
-    const updatedLocalData = selectedBucket.data.map((item) =>
-      item.id === dataId ? { ...item, data: text } : item
-    );
-  
-    setSelectedBucket((prevBucket) => ({
-      ...prevBucket,
-      data: updatedLocalData,
-    }));
-  
-    const newTimeout = setTimeout(() => {
-      const patchRequest: BucketPatchRequest = {
-        id: selectedBucket._id,
-        data: updatedLocalData,
-      };
-  
-      dispatch(bucketActions.sagaPatchBucketById(patchRequest));
-    }, 5000); // 5-second delay
-  
-    setTypingTimeout(newTimeout);
-  };
-  
 
   const handleCheckboxChange = (checked: boolean, dataId: string) => {
     const updatedData = selectedBucket.data.map((item) =>
@@ -90,9 +66,80 @@ const Home: React.FC = () => {
           isChecked: false,
         },
       ],
-    }
+    };
 
     dispatch(bucketActions.sagaPatchBucketById(patchRequest));
+  };
+
+  const handleUpdateData = (text: string, dataId: string) => {
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    if (!text || text === "") {
+      handleDeleteItem(dataId);
+      return;
+    }
+
+    const updatedLocalData = selectedBucket.data.map((item) =>
+      item.id === dataId ? { ...item, data: text } : item
+    );
+
+    setSelectedBucket((prevBucket) => ({
+      ...prevBucket,
+      data: updatedLocalData,
+    }));
+
+    const newTimeout = setTimeout(() => {
+      const patchRequest: BucketPatchRequest = {
+        id: selectedBucket._id,
+        data: updatedLocalData,
+      };
+
+      dispatch(bucketActions.sagaPatchBucketById(patchRequest));
+    }, 5000);
+
+    setTypingTimeout(newTimeout);
+  };
+
+  const handleDeleteItem = (dataId: string) => {
+    const itemIndex = selectedBucket.data.findIndex(
+      (item) => item.id === dataId
+    );
+    const updatedLocalData = selectedBucket.data.filter(
+      (item) => item.id !== dataId
+    );
+
+    // If it's the last item, reset its value instead of deleting
+    if (updatedLocalData.length === 0) {
+      const emptyItem = { id: dataId, data: "", isChecked: false };
+      updatedLocalData.push(emptyItem);
+    }
+
+    setSelectedBucket((prevBucket) => ({
+      ...prevBucket,
+      data: updatedLocalData,
+    }));
+
+    const patchRequest: BucketPatchRequest = {
+      id: selectedBucket._id,
+      data: updatedLocalData,
+    };
+
+    dispatch(bucketActions.sagaPatchBucketById(patchRequest));
+
+    if (itemIndex > 0) {
+      const previousItemId = updatedLocalData[itemIndex - 1]?.id;
+      if (previousItemId && textInputRefs.current[previousItemId]) {
+        textInputRefs.current[previousItemId]?.focus();
+      }
+    }
+  };
+
+  const handleKeyPress = (event: any, text: string, dataId: string) => {
+    if (event.nativeEvent.key === "Backspace" && text === "") {
+      handleDeleteItem(dataId);
+    }
   };
 
   const handleOpenSettings = () => {
@@ -133,8 +180,9 @@ const Home: React.FC = () => {
                 }
               />
               <TextInput
+                ref={(ref) => (textInputRefs.current[item.id] = ref)} // Store the ref
                 editable
-                style={styles.text}
+                style={styles.textInput}
                 autoFocus={item.id === newItemId}
                 value={item.data}
                 multiline={false}
@@ -142,6 +190,9 @@ const Home: React.FC = () => {
                 autoComplete="off"
                 autoCorrect={false}
                 onChangeText={(text) => handleUpdateData(text, item.id)}
+                onKeyPress={(event) =>
+                  handleKeyPress(event, item.data, item.id)
+                }
                 onSubmitEditing={handleAddItem}
               />
             </View>
@@ -163,8 +214,9 @@ const Home: React.FC = () => {
                 }
               />
               <TextInput
+                ref={(ref) => (textInputRefs.current[item.id] = ref)} // Store the ref
                 editable
-                style={styles.text}
+                style={styles.textInput}
                 autoFocus={item.id === newItemId}
                 value={item.data}
                 multiline={false}
@@ -172,6 +224,9 @@ const Home: React.FC = () => {
                 autoComplete="off"
                 autoCorrect={false}
                 onChangeText={(text) => handleUpdateData(text, item.id)}
+                onKeyPress={(event) =>
+                  handleKeyPress(event, item.data, item.id)
+                }
                 onSubmitEditing={handleAddItem}
               />
             </View>
@@ -252,6 +307,10 @@ const styles = StyleSheet.create({
   },
   text: {
     color: "#fffefd",
+  },
+  textInput: {
+    color: "#fffefd",
+    flex: 1,
   },
 });
 

@@ -1,6 +1,5 @@
 import { Bucket, BucketCreateRequest, BucketPatchRequest } from "@/model/bucket";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import uuid from 'react-native-uuid';
 
 export interface bucketSliceState {
   loading: boolean;
@@ -21,11 +20,14 @@ const slice = createSlice({
     sagaGetBuckets: (_state) => {},
     // sagaGetBucketById: (_state, _action: PayloadAction<string>) => {},
     sagaPatchBucketById: (_state, _action: PayloadAction<BucketPatchRequest>) => {},
-    sagaDeteleBucketById: (_state, _action: PayloadAction<string>) => {},
+    sagaDeleteBucketById: (_state, _action: PayloadAction<string>) => {},
 
     // redux actions for current module
     setLoading: (state, action) => {
       state.loading = action.payload;
+    },
+    createBucket: (state, action) => {
+      state.buckets = [...state.buckets, action.payload];
     },
     setBuckets: (state, action) => {
       state.buckets = action.payload;
@@ -34,7 +36,10 @@ const slice = createSlice({
       state.buckets = state.buckets.map((bucket) =>
         bucket._id === action.payload._id ? action.payload : bucket
       );
-    },    
+    }, 
+    deleteBucket(state, action: PayloadAction<Bucket>) {
+      state.buckets = state.buckets.filter((bucket) => bucket._id !== action.payload._id);
+    },
     reset: () => initialState,
   },
 
