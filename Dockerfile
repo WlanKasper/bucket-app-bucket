@@ -16,7 +16,6 @@ RUN npm ci
 COPY .env ./
 COPY index.html ./
 COPY tsconfig.json ./
-COPY public ./public
 COPY src ./src
 
 RUN npm run build
