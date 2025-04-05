@@ -3,7 +3,7 @@ export type Config = {
 };
 
 const config: Config = {
-  BUCKET_SERVER_ENDPOINT: process.env.EXPO_PUBLIC_APP_BUCKET_SERVER_ENDPOINT || "",
+  BUCKET_SERVER_ENDPOINT: process.env.API_URL || "",
 };
 
 export default config;
