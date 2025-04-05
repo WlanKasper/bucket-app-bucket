@@ -13,6 +13,7 @@ COPY package-lock.json ./
 RUN npm ci
 
 # copy source files
+COPY .env ./
 COPY index.html ./
 COPY tsconfig.json ./
 COPY vite.config.ts ./
