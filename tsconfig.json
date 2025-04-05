@@ -1,17 +1,28 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true,
-    "module": "ESNext",
-    "jsx": "react-native",
+    "strict": true,  // Enables strict type-checking
+    "module": "ESNext",  // Use modern JavaScript modules
+    "moduleResolution": "Node",  // Ensure correct module resolution strategy
+    "jsx": "react-jsx",  // Supports JSX in React 17+ projects
+    "target": "ESNext",  // Target modern JavaScript environments
+    "esModuleInterop": true,  // Ensures compatibility with CommonJS modules
+    "forceConsistentCasingInFileNames": true,  // File name casing must be consistent
+    "skipLibCheck": true,  // Skip type checks for libraries for performance
+    "isolatedModules": true,  // Helps with tools like Babel or Vite
+    "resolveJsonModule": true,  // Allows importing .json files
+    "noEmit": true,  // Don't emit compiled files; let Vite handle it
+    "allowSyntheticDefaultImports": true,  // Enables default imports from modules without default exports
+    "baseUrl": ".",  // Allows relative imports
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]  // Support absolute imports from src/
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

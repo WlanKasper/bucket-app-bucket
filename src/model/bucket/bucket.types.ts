@@ -1,6 +1,7 @@
 export interface Bucket {
   _id: string;
-  label: string;
+  name: string;
+  description: string;
   data: BucketItem[];
 }
 
@@ -11,12 +12,14 @@ export interface BucketItem {
 }
 
 export interface BucketCreateRequest {
-  label: string;
+  name: string;
+  description: string;
   data?: BucketItem[];
 }
 
 export interface BucketPatchRequest {
   id: string;
-  label?: string;
+  name?: string;
+  description?: string;
   data?: BucketItem[];
 }

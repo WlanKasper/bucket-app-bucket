@@ -1,3 +1,3 @@
-import safe, { SafeReturn } from "./safe";
+import safe from "./safe";
 
-export { safe, SafeReturn };
+export { safe };

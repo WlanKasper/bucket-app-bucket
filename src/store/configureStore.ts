@@ -1,38 +1,28 @@
-import { Tuple, configureStore, isPlain } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
-// import { type Middlewares } from "@reduxjs/toolkit/dist/configureStore";
-
 import reducer from "./reducer";
 import rootSaga from "./sagas";
 
+// Custom function to check serializability, including Date objects
 export function isMyPlain(val: any) {
-  return val instanceof Date || isPlain(val);
+  return val instanceof Date || typeof val === 'object' && val !== null;
 }
-
-const defaultCustomizedMiddleware = {
-  serializableCheck: false,
-  immutableCheck: { warnAfter: 800 },
-  thunk: true,
-};
 
 const sagaMiddleware = createSagaMiddleware();
 
-const store = configureStore({
+export const store = configureStore({
   reducer,
   middleware: (getDefaultMiddleware) => {
-    // const middlewares = new Tuple<Middlewares<any>>();
-    const middlewares = new Tuple<any>();
-    middlewares.push(...getDefaultMiddleware(defaultCustomizedMiddleware));
-    middlewares.push(sagaMiddleware);
-
-    return middlewares;
+    return getDefaultMiddleware({
+      serializableCheck: {
+        isSerializable: isMyPlain, // Add custom serializable check
+      },
+      immutableCheck: { warnAfter: 800 }, // Optional, can be tweaked or removed
+    }).concat(sagaMiddleware); // Add sagaMiddleware
   },
 });
 
+// Run the root saga
 sagaMiddleware.run(rootSaga);
 
 export type RootState = ReturnType<typeof store.getState>;
-
-export default function () {
-  return store;
-}
