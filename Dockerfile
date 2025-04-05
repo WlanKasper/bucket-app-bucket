@@ -16,6 +16,7 @@ RUN npm ci
 COPY .env ./
 COPY index.html ./
 COPY tsconfig.json ./
+COPY vite.config.ts ./
 COPY src ./src
 
 RUN npm run build
