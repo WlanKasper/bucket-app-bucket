@@ -6,13 +6,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 dotenv.config();
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [
+    react(),
+    tsconfigPaths({
+      projects: ["tsconfig.json"],
+    }),
+  ],
   define: {
     "process.env": process.env,
-  },
-  resolve: {
-    alias: {
-      "@": "/src",
-    },
   },
 });
