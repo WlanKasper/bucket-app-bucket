@@ -8,7 +8,6 @@ WORKDIR /usr/src
 ENV PATH /node_modules/.bin:$PATH
 
 # install app dependencies on ci
-COPY .npmrc ./
 COPY package.json ./
 COPY package-lock.json ./
 RUN npm ci
