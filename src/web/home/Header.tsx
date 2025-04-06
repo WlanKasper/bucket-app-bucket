@@ -85,7 +85,7 @@ const Header = (): JSX.Element => {
               <DeleteIcon onClick={handleDeleteCatalog} />
             </Box>
             <Typography fontSize={12} fontWeight={400} color={"#ACACAC"}>
-              {catalog.description}
+              {catalog.description} {JSON.stringify(user)}
             </Typography>
           </Box>
         )}
