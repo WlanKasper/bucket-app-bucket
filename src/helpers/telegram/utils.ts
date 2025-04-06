@@ -2,7 +2,7 @@ import TMA from "@twa-dev/sdk";
 
 export const initApp = () => {
   TMA.ready();
-  TMA.expand();
+  TMA.requestFullscreen();
 };
 
 export const getTelegramUser = () =>
