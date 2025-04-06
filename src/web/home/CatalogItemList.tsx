@@ -5,11 +5,13 @@ import { bucketActions, bucketSelectors } from "@/store/bucket";
 import { Bucket, BucketPatchRequest } from "@/model/bucket";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
+import { getTelegramUser } from "@/helpers/telegram/utils";
 
 const CatalogItemList = () => {
   const dispatch = useDispatch();
   const selectedCatalog = useSelector(bucketSelectors.selectedBucket);
   const userId = useSelector(bucketSelectors.userId);
+  const user = getTelegramUser();
 
   const [draftCatalog, setDraftCatalog] = useState<Bucket | undefined>(
     selectedCatalog
@@ -151,7 +153,9 @@ const CatalogItemList = () => {
       </Box>
     </Box>
   ) : (
-    <>No data</>
+    <>
+      {user} | {JSON.stringify(user)}
+    </>
   );
 };
 
