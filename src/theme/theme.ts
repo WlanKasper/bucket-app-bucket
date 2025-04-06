@@ -201,6 +201,10 @@ const componentOverride = createTheme(mainTheme, {
     },
     MuiDialog: {
       styleOverrides: {
+        container: {
+          height: "auto",
+          paddingTop: "10vh",
+        },
         paper: {
           borderRadius: "16px",
           background: "#FFFFFF",
