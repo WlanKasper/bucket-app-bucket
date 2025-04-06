@@ -4,13 +4,14 @@ import style from "./styleHomePage";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { bucketActions, bucketSelectors } from "@/store/bucket";
-import { getTelegramUser } from "@/helpers/telegram/utils";
+import { getTelegramUser, showAlert } from "@/helpers/telegram/utils";
 
 const Header = (): JSX.Element => {
   const dispatch = useDispatch();
   const catalog = useSelector(bucketSelectors.selectedBucket);
 
   const user = getTelegramUser();
+  showAlert(JSON.stringify(user));
 
   const data =
     catalog && catalog.data.length > 0
@@ -68,27 +69,27 @@ const Header = (): JSX.Element => {
             </Typography>
           </Box>
         </Box>
-        {/* {catalog && ( */}
-        <Box sx={style.catalogInfo}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "6px",
-              alignItems: "center",
-              color: "#ACACAC",
-            }}
-          >
-            <Typography fontSize={18} fontWeight={700} color={"#666666"}>
-              {catalog?.name}
+        {catalog && (
+          <Box sx={style.catalogInfo}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "6px",
+                alignItems: "center",
+                color: "#ACACAC",
+              }}
+            >
+              <Typography fontSize={18} fontWeight={700} color={"#666666"}>
+                {catalog.name}
+              </Typography>
+              <DeleteIcon onClick={handleDeleteCatalog} />
+            </Box>
+            <Typography fontSize={12} fontWeight={400} color={"#ACACAC"}>
+              {catalog.description}
             </Typography>
-            <DeleteIcon onClick={handleDeleteCatalog} />
           </Box>
-          <Typography fontSize={12} fontWeight={400} color={"#ACACAC"}>
-            {catalog?.description} {JSON.stringify(user)}
-          </Typography>
-        </Box>
-        {/* )} */}
+        )}
       </Box>
 
       {user ? (
@@ -96,9 +97,7 @@ const Header = (): JSX.Element => {
           sx={style.avatar}
           alt={user?.first_name}
           src={user?.photo_url || undefined}
-        >
-          {user?.first_name?.[0] || "?"}
-        </Avatar>
+        />
       ) : (
         <Avatar sx={style.avatar} alt={"user avatart"} src={undefined}>
           ?
