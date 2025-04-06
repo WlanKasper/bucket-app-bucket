@@ -5,11 +5,10 @@ const container: SxProps<Theme> = {
   position: "relative",
 
   height: "100%",
+  overflowY: "scroll",
+  overflowX: "hidden",
 
-  paddingTop: "10vh",
-  paddingLeft: "10vw",
-  paddingRight: "10vw",
-  paddingBottom: "3vh",
+  paddingTop: "12vh",
 
   display: "flex",
   flexDirection: "column",
@@ -18,11 +17,9 @@ const container: SxProps<Theme> = {
   background: `url(${background}) no-repeat center center`,
   backgroundSize: "cover",
 
-  "@media (max-width: 600px)": {
-    gap: "32px",
-    paddingLeft: "16px",
-    paddingRight: "16px",
-  },
+  paddingLeft: "16px",
+  paddingRight: "16px",
+  paddingBottom: "16px",
 };
 
 const status: SxProps<Theme> = {

@@ -2,9 +2,8 @@ import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./home/HomePage";
 import { useDispatch } from "react-redux";
-import { bucketActions } from "@/store/bucket";
+import { bucketActions, bucketReducer } from "@/store/bucket";
 import { getTelegramUser, initApp } from "@/helpers/telegram/utils";
-import SafeAreaWrapper from "./home/SafeAreaWrapper";
 
 const App = () => {
   initApp();
@@ -18,11 +17,9 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaWrapper>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-      </Routes>
-    </SafeAreaWrapper>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+    </Routes>
   );
 };
 
