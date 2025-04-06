@@ -4,11 +4,13 @@ import style from "./styleHomePage";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { bucketActions, bucketSelectors } from "@/store/bucket";
+import { getTelegramUser } from "@/helpers/telegram/utils";
 
 const Header = (): JSX.Element => {
   const dispatch = useDispatch();
-
   const catalog = useSelector(bucketSelectors.selectedBucket);
+
+  const user = getTelegramUser();
 
   const data =
     catalog && catalog.data.length > 0
@@ -17,17 +19,10 @@ const Header = (): JSX.Element => {
           value: 1,
           color: item.isChecked ? "#A37BF5" : "#FFFFFF",
         }))
-      : [
-          {
-            id: 0,
-            value: 1,
-            color: "#FFFFFF",
-          },
-        ];
+      : [{ id: 0, value: 1, color: "#FFFFFF" }];
 
   const handleDeleteCatalog = () => {
     if (!catalog) return;
-
     dispatch(bucketActions.sagaDeleteBucketById(catalog._id));
   };
 
@@ -38,7 +33,7 @@ const Header = (): JSX.Element => {
           <PieChart
             series={[
               {
-                data: data,
+                data,
                 innerRadius: 28,
                 outerRadius: 32,
                 paddingAngle: 0,
@@ -97,7 +92,13 @@ const Header = (): JSX.Element => {
       </Box>
 
       <Box>
-        <Avatar sx={style.avatar}>AR</Avatar>
+        <Avatar
+          sx={style.avatar}
+          alt={user?.first_name}
+          src={user?.photo_url || undefined}
+        >
+          {user?.first_name?.[0] || "?"}
+        </Avatar>
       </Box>
     </Box>
   );

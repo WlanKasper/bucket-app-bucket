@@ -9,6 +9,7 @@
     "@mui/material": "^5.15.10",
     "@mui/x-charts": "^7.20.0",
     "@reduxjs/toolkit": "^2.1.0",
+    "@twa-dev/sdk": "^8.0.2",
     "@vis.gl/react-google-maps": "^0.8.2",
     "axios": "^1.6.7",
     "date-fns": "^3.3.1",
