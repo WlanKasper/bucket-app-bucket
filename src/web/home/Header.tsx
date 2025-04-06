@@ -46,7 +46,7 @@ const Header = ({ draftCatalog }: HeaderProps): JSX.Element => {
             series={[
               {
                 data,
-                innerRadius: 28,
+                innerRadius: 26,
                 outerRadius: 32,
                 paddingAngle: 0,
                 cornerRadius: 10,
