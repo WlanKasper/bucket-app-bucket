@@ -6,7 +6,7 @@ const container: SxProps<Theme> = {
 
   height: "100%",
 
-  paddingTop: "3vh",
+  paddingTop: "10vh",
   paddingLeft: "10vw",
   paddingRight: "10vw",
   paddingBottom: "3vh",
