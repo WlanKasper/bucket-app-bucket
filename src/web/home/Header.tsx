@@ -4,14 +4,13 @@ import style from "./styleHomePage";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { bucketActions, bucketSelectors } from "@/store/bucket";
-import { getTelegramUser, showAlert } from "@/helpers/telegram/utils";
+import { getTelegramUser } from "@/helpers/telegram/utils";
 
 const Header = (): JSX.Element => {
   const dispatch = useDispatch();
   const catalog = useSelector(bucketSelectors.selectedBucket);
 
   const user = getTelegramUser();
-  showAlert(JSON.stringify(user));
 
   const data =
     catalog && catalog.data.length > 0
