@@ -6,14 +6,19 @@ import { Bucket, BucketPatchRequest } from "@/model/bucket";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 
-const CatalogItemList = () => {
+interface CatalogItemListProps {
+  draftCatalog: Bucket | undefined;
+  setDraftCatalog: React.Dispatch<React.SetStateAction<Bucket | undefined>>;
+}
+
+const CatalogItemList = ({
+  draftCatalog,
+  setDraftCatalog,
+}: CatalogItemListProps) => {
   const dispatch = useDispatch();
   const selectedCatalog = useSelector(bucketSelectors.selectedBucket);
   const userId = useSelector(bucketSelectors.userId);
 
-  const [draftCatalog, setDraftCatalog] = useState<Bucket | undefined>(
-    selectedCatalog
-  );
   const [newItemId, setNewItemId] = useState<string>("");
 
   const textRef = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -146,9 +151,11 @@ const CatalogItemList = () => {
             />
           </Box>
         ))}
-      <Box sx={style.extraItem} onClick={handleAddItem}>
-        Click in this squer to add a new item
-      </Box>
+      {draftCatalog.data.length === 0 && (
+        <Box sx={style.extraItem} onClick={handleAddItem}>
+          Click in this squer to add a new item
+        </Box>
+      )}
     </Box>
   ) : (
     <>No data</>

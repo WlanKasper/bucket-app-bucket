@@ -191,12 +191,11 @@ const componentOverride = createTheme(mainTheme, {
         root: {
           textTransform: "none",
           padding: "5px 30px",
-          background: colors.accent,
+          minWidth: "auto",
 
-          "&:hover": {
-            color: colors.black,
-            background: colors.grey,
-          },
+          // "&:hover": {
+          //   backgroundColor: "inherit",
+          // },
         },
       },
     },

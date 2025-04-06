@@ -5,4 +5,9 @@ export const initApp = () => {
   TMA.expand();
 };
 
-export const getTelegramUser = () => TMA.initDataUnsafe.user;
+export const getTelegramUser = () =>
+  TMA.initDataUnsafe.user || {
+    id: "1234567890",
+    first_name: "Peter",
+    photo_url: "",
+  };

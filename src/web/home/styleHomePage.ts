@@ -19,9 +19,9 @@ const container: SxProps<Theme> = {
   backgroundSize: "cover",
 
   "@media (max-width: 600px)": {
-    gap: "48px",
-    paddingLeft: "5vw",
-    paddingRight: "5vw",
+    gap: "32px",
+    paddingLeft: "16px",
+    paddingRight: "16px",
   },
 };
 
@@ -66,20 +66,29 @@ const content: SxProps<Theme> = {
 };
 
 const bar: SxProps<Theme> = {
+  position: "relative",
   display: "flex",
   flexDirection: "row",
   gap: "16px",
 };
 
 const barCatalogs: SxProps<Theme> = {
+  position: "absolute",
+  left: "24px",
+  width: "100%",
+  paddingRight: "24px",
   display: "flex",
   flexDirection: "row",
   gap: "16px",
   scrollbarWidth: "none",
   overflowX: "scroll",
+  "& > :first-child": {
+    marginLeft: "34px",
+  },
 };
 
 const buttonAdd: SxProps<Theme> = {
+  zIndex: 10,
   display: "flex",
 
   width: "44px",
@@ -92,18 +101,17 @@ const buttonAdd: SxProps<Theme> = {
 
 const buttonCatalog = (isActive: boolean): SxProps<Theme> => ({
   display: "flex",
+  width: "fit-content",
 
   height: "44px",
-  minWidth: "120px",
   whiteSpace: "nowrap",
 
   padding: "16px 24px",
-  margin: "0",
   borderRadius: "15px",
 
   border: isActive ? "none" : "1px solid #A37BF5",
 
-  background: isActive ? "#A37BF5" : "#FFFFFF",
+  backgroundColor: isActive ? "#A37BF5 !important" : "#FFFFFF !important",
   color: isActive ? "#FFFFFF" : "#A37BF5",
 });
 
@@ -127,8 +135,6 @@ const extraItem: SxProps<Theme> = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-
-  padding: "20px 0 0 0",
 
   fontSize: "12px",
   color: "#a8a8a8",

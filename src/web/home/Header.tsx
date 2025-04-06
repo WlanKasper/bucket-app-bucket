@@ -5,25 +5,37 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { bucketActions, bucketSelectors } from "@/store/bucket";
 import { getTelegramUser } from "@/helpers/telegram/utils";
+import { useEffect, useState } from "react";
+import { Bucket } from "@/model/bucket";
 
-const Header = (): JSX.Element => {
+interface HeaderProps {
+  draftCatalog: Bucket | undefined;
+}
+
+const Header = ({ draftCatalog }: HeaderProps): JSX.Element => {
   const dispatch = useDispatch();
-  const catalog = useSelector(bucketSelectors.selectedBucket);
-
   const user = getTelegramUser();
 
-  const data =
-    catalog && catalog.data.length > 0
-      ? catalog.data.map((item) => ({
-          id: item.id,
-          value: 1,
-          color: item.isChecked ? "#A37BF5" : "#FFFFFF",
-        }))
-      : [{ id: 0, value: 1, color: "#FFFFFF" }];
+  const [data, setData] = useState<any>([
+    { id: 0, value: 1, color: "#FFFFFF" },
+  ]);
+
+  useEffect(() => {
+    const data =
+      draftCatalog && draftCatalog.data.length > 0
+        ? draftCatalog.data.map((item) => ({
+            id: item.id,
+            value: 1,
+            color: item.isChecked ? "#A37BF5" : "#FFFFFF",
+          }))
+        : [{ id: 0, value: 1, color: "#FFFFFF" }];
+
+    setData(data);
+  }, [draftCatalog]);
 
   const handleDeleteCatalog = () => {
-    if (!catalog) return;
-    dispatch(bucketActions.sagaDeleteBucketById(catalog._id));
+    if (!draftCatalog) return;
+    dispatch(bucketActions.sagaDeleteBucketById(draftCatalog._id));
   };
 
   return (
@@ -62,13 +74,13 @@ const Header = (): JSX.Element => {
               color={"#666666"}
               sx={{ whiteSpace: "nowrap" }}
             >
-              {catalog
-                ? `${catalog.data.filter((item) => item.isChecked).length} of ${catalog.data.length}`
+              {draftCatalog
+                ? `${draftCatalog.data.filter((item) => item.isChecked).length} of ${draftCatalog.data.length}`
                 : ""}
             </Typography>
           </Box>
         </Box>
-        {catalog && (
+        {draftCatalog && (
           <Box sx={style.catalogInfo}>
             <Box
               sx={{
@@ -80,12 +92,12 @@ const Header = (): JSX.Element => {
               }}
             >
               <Typography fontSize={18} fontWeight={700} color={"#666666"}>
-                {catalog.name}
+                {draftCatalog.name}
               </Typography>
               <DeleteIcon onClick={handleDeleteCatalog} />
             </Box>
             <Typography fontSize={12} fontWeight={400} color={"#ACACAC"}>
-              {catalog.description}
+              {draftCatalog.description}
             </Typography>
           </Box>
         )}
@@ -94,8 +106,8 @@ const Header = (): JSX.Element => {
       {user ? (
         <Avatar
           sx={style.avatar}
-          alt={user?.first_name}
-          src={user?.photo_url || undefined}
+          alt={user.first_name}
+          src={user.photo_url || undefined}
         />
       ) : (
         <Avatar sx={style.avatar} alt={"user avatart"} src={undefined}>

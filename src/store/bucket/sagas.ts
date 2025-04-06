@@ -77,7 +77,7 @@ function* getBucketsFlow({ payload }: { payload: string }) {
 }
 
 function* patchBucketByIdFlow({ payload }: { payload: BucketPatchRequest }) {
-  yield delay(1500);
+  yield delay(500);
 
   console.debug("[👀] patchBucketByIdFlow - start");
   yield put(bucketActions.setLoading(true));
