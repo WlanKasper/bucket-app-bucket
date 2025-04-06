@@ -8,6 +8,7 @@ import {
   DialogTitle,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import style from "./styleHomePage";
 import AddIcon from "@mui/icons-material/Add";
@@ -15,6 +16,7 @@ import { Bucket, BucketCreateRequest } from "@/model/bucket";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { bucketActions, bucketSelectors } from "@/store/bucket";
+import { theme } from "@/theme/theme";
 
 const CatalogActionBar = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,7 @@ const CatalogActionBar = () => {
   const catalogs = useSelector(bucketSelectors.buckets);
   const selectedCatalog = useSelector(bucketSelectors.selectedBucket);
   const userId = useSelector(bucketSelectors.userId);
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [open, setOpen] = useState(false);
   const [newCatalogName, setNewCatalogName] = useState("");
@@ -74,7 +77,7 @@ const CatalogActionBar = () => {
             );
           })}
       </Box>
-      <Dialog open={open} onClose={handleCloseDialog}>
+      <Dialog open={open} onClose={handleCloseDialog} fullScreen={fullScreen}>
         <DialogTitle sx={{ textAlign: "center" }}>
           <Typography fontSize={18} fontWeight={700} color={"#A37BF5"}>
             New group
