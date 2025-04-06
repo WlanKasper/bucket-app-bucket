@@ -68,27 +68,27 @@ const Header = (): JSX.Element => {
             </Typography>
           </Box>
         </Box>
-        {catalog && (
-          <Box sx={style.catalogInfo}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "6px",
-                alignItems: "center",
-                color: "#ACACAC",
-              }}
-            >
-              <Typography fontSize={18} fontWeight={700} color={"#666666"}>
-                {catalog.name}
-              </Typography>
-              <DeleteIcon onClick={handleDeleteCatalog} />
-            </Box>
-            <Typography fontSize={12} fontWeight={400} color={"#ACACAC"}>
-              {catalog.description} {JSON.stringify(user)}
+        {/* {catalog && ( */}
+        <Box sx={style.catalogInfo}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "6px",
+              alignItems: "center",
+              color: "#ACACAC",
+            }}
+          >
+            <Typography fontSize={18} fontWeight={700} color={"#666666"}>
+              {catalog?.name}
             </Typography>
+            <DeleteIcon onClick={handleDeleteCatalog} />
           </Box>
-        )}
+          <Typography fontSize={12} fontWeight={400} color={"#ACACAC"}>
+            {catalog?.description} {JSON.stringify(user)}
+          </Typography>
+        </Box>
+        {/* )} */}
       </Box>
 
       {user ? (
