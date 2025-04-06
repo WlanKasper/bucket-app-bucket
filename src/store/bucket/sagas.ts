@@ -1,7 +1,7 @@
-
 import { PayloadAction } from "@reduxjs/toolkit";
 import {
   call,
+  delay,
   fork,
   put,
   SagaReturnType,
@@ -10,8 +10,17 @@ import {
 import { actions as bucketActions } from "./slice";
 import axios from "axios";
 import { safe } from "@/helpers/saga";
-import { createBucket, deleteBucketById, getBuckets, patchBucketById } from "@/service/bucket/bucket";
-import { Bucket, BucketCreateRequest, BucketPatchRequest } from "@/model/bucket";
+import {
+  createBucket,
+  deleteBucketById,
+  getBuckets,
+  patchBucketById,
+} from "@/service/bucket/bucket";
+import {
+  Bucket,
+  BucketCreateRequest,
+  BucketPatchRequest,
+} from "@/model/bucket";
 
 //=====================================
 //  FLOWS
@@ -67,32 +76,9 @@ function* getBucketsFlow() {
   }
 }
 
-// function* getBucketByIdFlow({ payload }: { payload: string }) {
-//   console.debug("[👀] getBucketByIdFlow - start");
-//   yield put(bucketActions.setLoading(true));
-
-//   const cancelSource = axios.CancelToken.source();
-
-//   try {
-//     const { result, error }: SagaReturnType<typeof safe<Bucket[]>> = yield safe<
-//       Bucket[]
-//     >(call(getBucketById, cancelSource, payload));
-
-//     if (error) {
-//       console.error("[❌] Get bucket by ID error:", error.message);
-//       return;
-//     }
-
-//     if (result && result.length > 0) {
-//       yield put(bucketActions.setBuckets(result));
-//     }
-//   } finally {
-//     console.debug("[👀] getBucketByIdFlow - end");
-//     yield put(bucketActions.setLoading(false));
-//   }
-// }
-
 function* patchBucketByIdFlow({ payload }: { payload: BucketPatchRequest }) {
+  yield delay(1500);
+
   console.debug("[👀] patchBucketByIdFlow - start");
   yield put(bucketActions.setLoading(true));
 
@@ -123,9 +109,8 @@ function* deleteBucketByIdFlow({ payload }: { payload: string }) {
   const cancelSource = axios.CancelToken.source();
 
   try {
-    const { result, error }: SagaReturnType<typeof safe<Bucket>> = yield safe<
-      Bucket
-    >(call(deleteBucketById, cancelSource, payload));
+    const { result, error }: SagaReturnType<typeof safe<Bucket>> =
+      yield safe<Bucket>(call(deleteBucketById, cancelSource, payload));
 
     if (error) {
       console.error("[❌] Delete bucket by ID error:", error.message);
@@ -156,13 +141,6 @@ function* watchGetBuckets() {
   yield takeLatest(bucketActions.sagaGetBuckets.type, getBucketsFlow);
 }
 
-// function* watchGetBucketById() {
-//   yield takeLatest<PayloadAction<string>>(
-//     bucketActions.sagaGetBucketById.type,
-//     getBucketByIdFlow
-//   );
-// }
-
 function* watchPatchBucketById() {
   yield takeLatest<PayloadAction<BucketPatchRequest>>(
     bucketActions.sagaPatchBucketById.type,
@@ -184,7 +162,7 @@ function* watchDeleteBucketById() {
 export const bucketSagas = [
   fork(watchCreateBucket),
   fork(watchGetBuckets),
-//   fork(watchGetBucketById),
+  //   fork(watchGetBucketById),
   fork(watchPatchBucketById),
   fork(watchDeleteBucketById),
 ];

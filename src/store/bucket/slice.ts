@@ -1,14 +1,21 @@
-import { Bucket, BucketCreateRequest, BucketPatchRequest } from "@/model/bucket";
+import {
+  Bucket,
+  BucketCreateRequest,
+  BucketPatchRequest,
+} from "@/model/bucket";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { set } from "lodash";
 
 export interface bucketSliceState {
   loading: boolean;
   buckets: Bucket[];
+  selectedBucket?: Bucket;
 }
 
 const initialState: bucketSliceState = {
   loading: true,
   buckets: [],
+  selectedBucket: undefined,
 };
 
 const slice = createSlice({
@@ -16,10 +23,16 @@ const slice = createSlice({
   initialState,
   reducers: {
     // saga actions used by saga watchers
-    sagaCreateBucket: (_state, _action: PayloadAction<BucketCreateRequest>) => {},
+    sagaCreateBucket: (
+      _state,
+      _action: PayloadAction<BucketCreateRequest>
+    ) => {},
     sagaGetBuckets: (_state) => {},
     // sagaGetBucketById: (_state, _action: PayloadAction<string>) => {},
-    sagaPatchBucketById: (_state, _action: PayloadAction<BucketPatchRequest>) => {},
+    sagaPatchBucketById: (
+      _state,
+      _action: PayloadAction<BucketPatchRequest>
+    ) => {},
     sagaDeleteBucketById: (_state, _action: PayloadAction<string>) => {},
 
     // redux actions for current module
@@ -28,17 +41,31 @@ const slice = createSlice({
     },
     createBucket: (state, action) => {
       state.buckets = [...state.buckets, action.payload];
+      state.selectedBucket = action.payload;
     },
     setBuckets: (state, action) => {
       state.buckets = action.payload;
+      if (action.payload.length > 0) {
+        state.selectedBucket = action.payload[0];
+      }
+    },
+
+    setSelectedBucket: (state, action) => {
+      state.selectedBucket = action.payload;
     },
     patchBucket: (state, action) => {
       state.buckets = state.buckets.map((bucket) =>
         bucket._id === action.payload._id ? action.payload : bucket
       );
-    }, 
+    },
     deleteBucket(state, action: PayloadAction<Bucket>) {
-      state.buckets = state.buckets.filter((bucket) => bucket._id !== action.payload._id);
+      state.buckets = state.buckets.filter(
+        (bucket) => bucket._id !== action.payload._id
+      );
+
+      if (state.selectedBucket?._id === action.payload._id) {
+        state.selectedBucket = state.buckets[0];
+      }
     },
     reset: () => initialState,
   },
@@ -46,6 +73,7 @@ const slice = createSlice({
   selectors: {
     isLoading: (bucket) => bucket.loading,
     buckets: (bucket) => bucket.buckets,
+    selectedBucket: (bucket) => bucket.selectedBucket,
   },
 });
 
