@@ -21,6 +21,7 @@ const CatalogActionBar = () => {
 
   const catalogs = useSelector(bucketSelectors.buckets);
   const selectedCatalog = useSelector(bucketSelectors.selectedBucket);
+  const userId = useSelector(bucketSelectors.userId);
 
   const [open, setOpen] = useState(false);
   const [newCatalogName, setNewCatalogName] = useState("");
@@ -41,7 +42,10 @@ const CatalogActionBar = () => {
   };
 
   const handleCreateCatalog = () => {
+    if (!userId) return;
+
     const request: BucketCreateRequest = {
+      userId: userId,
       name: newCatalogName,
       description: newCatalogDescription,
       data: [],

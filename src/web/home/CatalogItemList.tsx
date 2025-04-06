@@ -9,6 +9,7 @@ import { v4 as uuid } from "uuid";
 const CatalogItemList = () => {
   const dispatch = useDispatch();
   const selectedCatalog = useSelector(bucketSelectors.selectedBucket);
+  const userId = useSelector(bucketSelectors.userId);
 
   const [draftCatalog, setDraftCatalog] = useState<Bucket | undefined>(
     selectedCatalog
@@ -26,13 +27,14 @@ const CatalogItemList = () => {
   }, [draftCatalog]);
 
   const handleSink = () => {
-    if (draftCatalog) {
-      const patchRequest: BucketPatchRequest = {
-        id: draftCatalog._id,
-        data: draftCatalog.data,
-      };
-      dispatch(bucketActions.sagaPatchBucketById(patchRequest));
-    }
+    if (!draftCatalog || !userId) return;
+
+    const patchRequest: BucketPatchRequest = {
+      userId: userId,
+      id: draftCatalog._id,
+      data: draftCatalog.data,
+    };
+    dispatch(bucketActions.sagaPatchBucketById(patchRequest));
   };
 
   const handleAddItem = () => {
@@ -53,20 +55,6 @@ const CatalogItemList = () => {
     });
 
     setNewItemId(newItemId);
-
-    // const patchRequest: BucketPatchRequest = {
-    //   id: draftCatalog._id,
-    //   data: [
-    //     ...draftCatalog.data,
-    //     {
-    //       id: newItemId,
-    //       data: "",
-    //       isChecked: false,
-    //     },
-    //   ],
-    // };
-
-    // dispatch(bucketActions.sagaPatchBucketById(patchRequest));
   };
 
   const handleUpdateItemStatus = (checked: boolean, itemId: string) => {
@@ -80,13 +68,6 @@ const CatalogItemList = () => {
       ...draftCatalog,
       data: updatedData,
     });
-
-    // const patchRequest: BucketPatchRequest = {
-    //   id: draftCatalog._id,
-    //   data: updatedData,
-    // };
-
-    // dispatch(bucketActions.sagaPatchBucketById(patchRequest));
   };
 
   const handleUpdateItemText = (text: string, dataId: string) => {
@@ -104,13 +85,6 @@ const CatalogItemList = () => {
       ...draftCatalog,
       data: updatedLocalData,
     });
-
-    // const patchRequest: BucketPatchRequest = {
-    //   id: draftCatalog._id,
-    //   data: updatedLocalData,
-    // };
-
-    // dispatch(bucketActions.sagaPatchBucketById(patchRequest));
   };
 
   const handleDeleteItem = (dataId: string) => {
@@ -130,13 +104,6 @@ const CatalogItemList = () => {
       ...draftCatalog,
       data: updatedLocalData,
     });
-
-    // const patchRequest: BucketPatchRequest = {
-    //   id: draftCatalog._id,
-    //   data: updatedLocalData,
-    // };
-
-    // dispatch(bucketActions.sagaPatchBucketById(patchRequest));
 
     if (itemIndex > 0) {
       const previousItemId = updatedLocalData[itemIndex - 1]?.id;

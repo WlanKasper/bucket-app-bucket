@@ -51,7 +51,7 @@ function* createBucketFlow({ payload }: { payload: BucketCreateRequest }) {
   }
 }
 
-function* getBucketsFlow() {
+function* getBucketsFlow({ payload }: { payload: string }) {
   console.debug("[👀] getBucketsFlow - start");
   yield put(bucketActions.setLoading(true));
 
@@ -60,7 +60,7 @@ function* getBucketsFlow() {
   try {
     const { result, error }: SagaReturnType<typeof safe<Bucket[]>> = yield safe<
       Bucket[]
-    >(call(getBuckets, cancelSource));
+    >(call(getBuckets, cancelSource, payload));
 
     if (error) {
       console.error("[❌] Get buckets error:", error.message);
@@ -138,7 +138,10 @@ function* watchCreateBucket() {
 }
 
 function* watchGetBuckets() {
-  yield takeLatest(bucketActions.sagaGetBuckets.type, getBucketsFlow);
+  yield takeLatest<PayloadAction<string>>(
+    bucketActions.sagaGetBuckets.type,
+    getBucketsFlow
+  );
 }
 
 function* watchPatchBucketById() {

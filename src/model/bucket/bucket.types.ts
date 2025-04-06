@@ -12,6 +12,7 @@ export interface BucketItem {
 }
 
 export interface BucketCreateRequest {
+  userId: string;
   name: string;
   description: string;
   data?: BucketItem[];
@@ -19,6 +20,7 @@ export interface BucketCreateRequest {
 
 export interface BucketPatchRequest {
   id: string;
+  userId: string;
   name?: string;
   description?: string;
   data?: BucketItem[];

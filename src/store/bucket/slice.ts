@@ -4,16 +4,17 @@ import {
   BucketPatchRequest,
 } from "@/model/bucket";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { set } from "lodash";
 
 export interface bucketSliceState {
   loading: boolean;
+  user_id?: string;
   buckets: Bucket[];
   selectedBucket?: Bucket;
 }
 
 const initialState: bucketSliceState = {
   loading: true,
+  user_id: undefined,
   buckets: [],
   selectedBucket: undefined,
 };
@@ -27,7 +28,7 @@ const slice = createSlice({
       _state,
       _action: PayloadAction<BucketCreateRequest>
     ) => {},
-    sagaGetBuckets: (_state) => {},
+    sagaGetBuckets: (_state, _action: PayloadAction<string>) => {},
     // sagaGetBucketById: (_state, _action: PayloadAction<string>) => {},
     sagaPatchBucketById: (
       _state,
@@ -38,6 +39,9 @@ const slice = createSlice({
     // redux actions for current module
     setLoading: (state, action) => {
       state.loading = action.payload;
+    },
+    setUserId: (state, action) => {
+      state.user_id = action.payload;
     },
     createBucket: (state, action) => {
       state.buckets = [...state.buckets, action.payload];
@@ -72,6 +76,7 @@ const slice = createSlice({
 
   selectors: {
     isLoading: (bucket) => bucket.loading,
+    userId: (bucket) => bucket.user_id,
     buckets: (bucket) => bucket.buckets,
     selectedBucket: (bucket) => bucket.selectedBucket,
   },

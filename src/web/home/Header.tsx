@@ -91,7 +91,7 @@ const Header = (): JSX.Element => {
         )}
       </Box>
 
-      <Box>
+      {user ? (
         <Avatar
           sx={style.avatar}
           alt={user?.first_name}
@@ -99,7 +99,11 @@ const Header = (): JSX.Element => {
         >
           {user?.first_name?.[0] || "?"}
         </Avatar>
-      </Box>
+      ) : (
+        <Avatar sx={style.avatar} alt={"user avatart"} src={undefined}>
+          ?
+        </Avatar>
+      )}
     </Box>
   );
 };
