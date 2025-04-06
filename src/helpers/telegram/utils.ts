@@ -6,4 +6,3 @@ export const initApp = () => {
 };
 
 export const getTelegramUser = () => TMA.initDataUnsafe.user;
-export const showAlert = (message: string) => TMA.showAlert(message);
