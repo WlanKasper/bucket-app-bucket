@@ -69,9 +69,15 @@ const bar: SxProps<Theme> = {
   gap: "16px",
 };
 
+const actionsGroup: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  gap: "8px",
+};
+
 const barCatalogs: SxProps<Theme> = {
   position: "absolute",
-  left: "24px",
+  left: "104px",
   width: "100%",
   paddingRight: "24px",
   display: "flex",
@@ -79,9 +85,6 @@ const barCatalogs: SxProps<Theme> = {
   gap: "16px",
   scrollbarWidth: "none",
   overflowX: "scroll",
-  "& > :first-child": {
-    marginLeft: "34px",
-  },
 };
 
 const buttonAdd: SxProps<Theme> = {
@@ -94,6 +97,18 @@ const buttonAdd: SxProps<Theme> = {
   borderRadius: "15px",
 
   background: "#A694FF",
+};
+
+const buttonShare: SxProps<Theme> = {
+  zIndex: 10,
+  display: "flex",
+
+  width: "44px",
+  height: "44px",
+
+  borderRadius: "15px",
+
+  background: "#E8DEF8",
 };
 
 const buttonCatalog = (isActive: boolean): SxProps<Theme> => ({
@@ -111,6 +126,17 @@ const buttonCatalog = (isActive: boolean): SxProps<Theme> => ({
   backgroundColor: isActive ? "#A37BF5 !important" : "#FFFFFF !important",
   color: isActive ? "#FFFFFF" : "#A37BF5",
 });
+
+const badgeCatalog: SxProps<Theme> = {
+  "& .MuiBadge-badge": {
+    bgcolor: "#A37BF5",
+    color: "white",
+    minWidth: 16,
+    height: 16,
+    padding: "0 4px",
+    marginTop: "8px",
+  },
+};
 
 const list: SxProps<Theme> = {
   display: "flex",
@@ -189,10 +215,13 @@ export default {
   content,
   info,
   bar,
+  actionsGroup,
   barCatalogs,
   buttonAdd,
+  buttonShare,
   catalogInfo,
   buttonCatalog,
+  badgeCatalog,
   list,
   item,
   extraItem,

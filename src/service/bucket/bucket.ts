@@ -5,6 +5,8 @@ import {
   Bucket,
   BucketCreateRequest,
   BucketPatchRequest,
+  BucketShareRequest,
+  BucketUnshareRequest,
 } from "@/model/bucket";
 
 export const createBucket = async (
@@ -15,12 +17,13 @@ export const createBucket = async (
 
 export const getBuckets = async (
   cancelSource: CancelTokenSource,
-  userId: string
+  userId: string,
+  username?: string
 ): Promise<Bucket[]> =>
-  await SagService.get(cancelSource, `api/bucket/${userId}`);
-
-// export const getBucketById = async (cancelSource: CancelTokenSource, bucketId: string): Promise<Bucket> =>
-//   await SagService.get(cancelSource, `api/bucket/${bucketId}`);
+  await SagService.get(
+    cancelSource,
+    `api/bucket/${userId}${username ? `?username=${encodeURIComponent(username)}` : ""}`
+  );
 
 export const patchBucketById = async (
   cancelSource: CancelTokenSource,
@@ -37,3 +40,26 @@ export const deleteBucketById = async (
   bucketId: string
 ): Promise<Bucket> =>
   await SagService.delete(cancelSource, `api/bucket/${bucketId}`);
+
+// Sharing endpoints
+export const shareBucket = async (
+  cancelSource: CancelTokenSource,
+  bucketId: string,
+  shareRequest: BucketShareRequest
+): Promise<Bucket> =>
+  await SagService.post(
+    cancelSource,
+    `api/bucket/${bucketId}/share`,
+    shareRequest
+  );
+
+export const unshareBucket = async (
+  cancelSource: CancelTokenSource,
+  bucketId: string,
+  unshareRequest: BucketUnshareRequest
+): Promise<Bucket> =>
+  await SagService.delete(
+    cancelSource,
+    `api/bucket/${bucketId}/share/${unshareRequest.targetUserId}`,
+    { userId: unshareRequest.userId }
+  );

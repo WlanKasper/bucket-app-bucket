@@ -15,11 +15,16 @@ import {
   deleteBucketById,
   getBuckets,
   patchBucketById,
+  shareBucket,
+  unshareBucket,
 } from "@/service/bucket/bucket";
+import { registerUser } from "@/service/user/user";
 import {
   Bucket,
   BucketCreateRequest,
   BucketPatchRequest,
+  BucketShareRequest,
+  BucketUnshareRequest,
 } from "@/model/bucket";
 
 //=====================================
@@ -51,7 +56,11 @@ function* createBucketFlow({ payload }: { payload: BucketCreateRequest }) {
   }
 }
 
-function* getBucketsFlow({ payload }: { payload: string }) {
+function* getBucketsFlow({
+  payload,
+}: {
+  payload: { userId: string; username?: string };
+}) {
   console.debug("[👀] getBucketsFlow - start");
   yield put(bucketActions.setLoading(true));
 
@@ -60,7 +69,7 @@ function* getBucketsFlow({ payload }: { payload: string }) {
   try {
     const { result, error }: SagaReturnType<typeof safe<Bucket[]>> = yield safe<
       Bucket[]
-    >(call(getBuckets, cancelSource, payload));
+    >(call(getBuckets, cancelSource, payload.userId, payload.username));
 
     if (error) {
       console.error("[❌] Get buckets error:", error.message);
@@ -126,6 +135,102 @@ function* deleteBucketByIdFlow({ payload }: { payload: string }) {
   }
 }
 
+// Sharing flows
+function* shareBucketFlow({
+  payload,
+}: {
+  payload: { bucketId: string } & BucketShareRequest;
+}) {
+  console.debug("[👀] shareBucketFlow - start");
+  yield put(bucketActions.setLoading(true));
+
+  const cancelSource = axios.CancelToken.source();
+
+  try {
+    const { result, error }: SagaReturnType<typeof safe<Bucket>> =
+      yield safe<Bucket>(
+        call(shareBucket, cancelSource, payload.bucketId, {
+          userId: payload.userId,
+          shareWithUsername: payload.shareWithUsername,
+        })
+      );
+
+    if (error) {
+      console.error("[❌] Share bucket error:", error.message);
+      return;
+    }
+
+    if (result) {
+      yield put(bucketActions.patchBucket(result));
+    }
+  } finally {
+    console.debug("[👀] shareBucketFlow - end");
+    yield put(bucketActions.setLoading(false));
+  }
+}
+
+function* unshareBucketFlow({
+  payload,
+}: {
+  payload: { bucketId: string } & BucketUnshareRequest;
+}) {
+  console.debug("[👀] unshareBucketFlow - start");
+  yield put(bucketActions.setLoading(true));
+
+  const cancelSource = axios.CancelToken.source();
+
+  try {
+    const { result, error }: SagaReturnType<typeof safe<Bucket>> =
+      yield safe<Bucket>(
+        call(unshareBucket, cancelSource, payload.bucketId, {
+          userId: payload.userId,
+          targetUserId: payload.targetUserId,
+        })
+      );
+
+    if (error) {
+      console.error("[❌] Unshare bucket error:", error.message);
+      return;
+    }
+
+    if (result) {
+      yield put(bucketActions.patchBucket(result));
+    }
+  } finally {
+    console.debug("[👀] unshareBucketFlow - end");
+    yield put(bucketActions.setLoading(false));
+  }
+}
+
+// User registration flow
+function* registerUserFlow({
+  payload,
+}: {
+  payload: {
+    telegramUserId: string;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}) {
+  console.debug("[👀] registerUserFlow - start");
+
+  const cancelSource = axios.CancelToken.source();
+
+  try {
+    const { error } = yield safe(call(registerUser, cancelSource, payload));
+
+    if (error) {
+      console.error("[❌] Register user error:", error.message);
+      return;
+    }
+
+    console.debug("[✅] User registered successfully");
+  } finally {
+    console.debug("[👀] registerUserFlow - end");
+  }
+}
+
 //=====================================
 //  WATCHERS
 //-------------------------------------
@@ -138,7 +243,7 @@ function* watchCreateBucket() {
 }
 
 function* watchGetBuckets() {
-  yield takeLatest<PayloadAction<string>>(
+  yield takeLatest<PayloadAction<{ userId: string; username?: string }>>(
     bucketActions.sagaGetBuckets.type,
     getBucketsFlow
   );
@@ -158,6 +263,29 @@ function* watchDeleteBucketById() {
   );
 }
 
+function* watchShareBucket() {
+  yield takeLatest<
+    PayloadAction<{ bucketId: string } & BucketShareRequest>
+  >(bucketActions.sagaShareBucket.type, shareBucketFlow);
+}
+
+function* watchUnshareBucket() {
+  yield takeLatest<
+    PayloadAction<{ bucketId: string } & BucketUnshareRequest>
+  >(bucketActions.sagaUnshareBucket.type, unshareBucketFlow);
+}
+
+function* watchRegisterUser() {
+  yield takeLatest<
+    PayloadAction<{
+      telegramUserId: string;
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+    }>
+  >(bucketActions.sagaRegisterUser.type, registerUserFlow);
+}
+
 //=====================================
 //  SAGAS
 //-------------------------------------
@@ -165,7 +293,9 @@ function* watchDeleteBucketById() {
 export const bucketSagas = [
   fork(watchCreateBucket),
   fork(watchGetBuckets),
-  //   fork(watchGetBucketById),
   fork(watchPatchBucketById),
   fork(watchDeleteBucketById),
+  fork(watchShareBucket),
+  fork(watchUnshareBucket),
+  fork(watchRegisterUser),
 ];

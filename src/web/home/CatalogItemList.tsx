@@ -18,6 +18,7 @@ const CatalogItemList = ({
   const dispatch = useDispatch();
   const selectedCatalog = useSelector(bucketSelectors.selectedBucket);
   const userId = useSelector(bucketSelectors.userId);
+  const username = useSelector(bucketSelectors.username);
 
   const [newItemId, setNewItemId] = useState<string>("");
 
@@ -35,7 +36,8 @@ const CatalogItemList = ({
     if (!draftCatalog || !userId) return;
 
     const patchRequest: BucketPatchRequest = {
-      userId: userId,
+      userId: userId.toString(),
+      username: username,
       id: draftCatalog._id,
       data: draftCatalog.data,
     };
@@ -153,7 +155,7 @@ const CatalogItemList = ({
         ))}
       {draftCatalog.data.length === 0 && (
         <Box sx={style.extraItem} onClick={handleAddItem}>
-          Click in this squer to add a new item
+          Click in this square to add a new item
         </Box>
       )}
     </Box>

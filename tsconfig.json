@@ -1,28 +1,24 @@
 {
   "compilerOptions": {
-    "strict": true,  // Enables strict type-checking
-    "module": "ESNext",  // Use modern JavaScript modules
-    "moduleResolution": "Node",  // Ensure correct module resolution strategy
-    "jsx": "react-jsx",  // Supports JSX in React 17+ projects
-    "target": "ESNext",  // Target modern JavaScript environments
-    "esModuleInterop": true,  // Ensures compatibility with CommonJS modules
-    "forceConsistentCasingInFileNames": true,  // File name casing must be consistent
-    "skipLibCheck": true,  // Skip type checks for libraries for performance
-    "isolatedModules": true,  // Helps with tools like Babel or Vite
-    "resolveJsonModule": true,  // Allows importing .json files
-    "noEmit": true,  // Don't emit compiled files; let Vite handle it
-    "allowSyntheticDefaultImports": true,  // Enables default imports from modules without default exports
-    "baseUrl": ".",  // Allows relative imports
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]  // Support absolute imports from src/
+      "@/*": ["./*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "src", "dist", "vite.config.ts"]
 }

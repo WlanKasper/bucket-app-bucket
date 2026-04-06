@@ -1,0 +1,1 @@
+-- Intentionally empty. Local dev and smoke tests create their own data.
