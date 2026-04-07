@@ -57,8 +57,8 @@ a {
   height: var(--tg-viewport-stable-height, 100svh);
   display: flex;
   flex-direction: column;
-  padding: 8px 16px 0;
-  padding-top: calc(var(--safe-top, 0px) + 8px + 2.5vh);
+  padding: 0 16px 0;
+  padding-top: var(--safe-top, env(safe-area-inset-top, 0px));
   gap: 14px;
 }
 
