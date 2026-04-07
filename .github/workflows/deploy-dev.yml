@@ -1,0 +1,25 @@
+name: Deploy → Dev
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (dev, production)
+        run: |
+          npm install -g vercel@latest
+          vercel pull --yes --environment=production \
+            --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: team_PeAH8fjhHC6cQ4CPBifwimrz
+          VERCEL_PROJECT_ID: prj_aFmyMn3c662TkCixbjd6i9jgjhCU
