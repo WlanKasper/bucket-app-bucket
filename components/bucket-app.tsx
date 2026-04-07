@@ -71,7 +71,7 @@ export function BucketApp() {
       if (!res.ok) throw new Error(data.error ?? "Unable to start session");
       setUser(data.user);
       await refreshBuckets();
-      setStatus(data.user.isDev ? "Dev mode active" : "Telegram session verified");
+      setStatus(data.user.isDev ? "Dev mode active" : "");
       setStatusTone("success");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Unable to start session");
