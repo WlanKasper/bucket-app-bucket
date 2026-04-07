@@ -36,6 +36,7 @@ export function BucketApp() {
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<string>("Connecting…");
   const [statusTone, setStatusTone] = useState<"neutral" | "success" | "error">("neutral");
+  const [shareUsername, setShareUsername] = useState("");
 
   const isDirtyRef = useRef(false);
   const lastEditTimeRef = useRef<number>(0);
@@ -203,6 +204,52 @@ export function BucketApp() {
     }
   }
 
+  async function shareBucket() {
+    if (!draft || !shareUsername.trim()) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/buckets/${draft.id}/share`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: shareUsername.trim() }),
+      });
+      const data = (await res.json()) as { bucket?: Bucket; error?: string };
+      if (!res.ok || !data.bucket) throw new Error(data.error ?? "Unable to share");
+      setBuckets((cur) => cur.map((b) => (b.id === data.bucket?.id ? data.bucket! : b)));
+      setDraft(cloneBucket(data.bucket));
+      setShareUsername("");
+      setStatus("Shared ✓");
+      setStatusTone("success");
+      setTimeout(() => setStatus(""), 1500);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Unable to share");
+      setStatusTone("error");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function unshareBucket(username: string) {
+    if (!draft) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/buckets/${draft.id}/share`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      });
+      const data = (await res.json()) as { bucket?: Bucket; error?: string };
+      if (!res.ok || !data.bucket) throw new Error(data.error ?? "Unable to remove");
+      setBuckets((cur) => cur.map((b) => (b.id === data.bucket?.id ? data.bucket! : b)));
+      setDraft(cloneBucket(data.bucket));
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Unable to remove");
+      setStatusTone("error");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   if (isBootstrapping) {
     return (
       <div className="app-loading">
@@ -288,6 +335,40 @@ export function BucketApp() {
             >
               + Add item
             </button>
+
+            {/* Compact sharing */}
+            <div className="share-section">
+              {isOwner ? (
+                <>
+                  <div className="share-row-compact">
+                    <input
+                      className="share-input-compact"
+                      value={shareUsername}
+                      onChange={(e) => setShareUsername(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") void shareBucket(); }}
+                      placeholder="Share with @username…"
+                    />
+                    {shareUsername.trim() && (
+                      <button className="share-btn-compact" type="button" onClick={() => void shareBucket()} disabled={isSaving}>
+                        Share
+                      </button>
+                    )}
+                  </div>
+                  {draft.sharedWith.length > 0 && (
+                    <div className="chip-list-compact">
+                      {draft.sharedWith.map((u) => (
+                        <span key={u} className="chip-compact">
+                          @{u}
+                          <button className="chip-remove-compact" type="button" onClick={() => void unshareBucket(u)}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="shared-by-label">Shared by @{draft.ownerUsername}</p>
+              )}
+            </div>
           </>
         ) : (
           <div className="empty-state">
