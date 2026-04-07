@@ -39,7 +39,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   padding: 0 16px 0;
-  padding-top: var(--safe-top, env(safe-area-inset-top, 0px));
+  padding-top: calc(var(--safe-top, env(safe-area-inset-top, 0px)) + 8px);
   gap: 10px;
 }
 
