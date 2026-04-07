@@ -27,6 +27,8 @@ interface TelegramWebApp {
   isFullscreen?: boolean;
   onEvent?: (eventType: string, callback: () => void) => void;
   offEvent?: (eventType: string, callback: () => void) => void;
+  openTelegramLink?: (url: string) => void;
+  openLink?: (url: string) => void;
 }
 
 interface Window {

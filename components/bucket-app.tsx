@@ -37,6 +37,7 @@ export function BucketApp() {
   const [status, setStatus] = useState<string>("Connecting…");
   const [statusTone, setStatusTone] = useState<"neutral" | "success" | "error">("neutral");
   const [shareUsername, setShareUsername] = useState("");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const isDirtyRef = useRef(false);
   const lastEditTimeRef = useRef<number>(0);
@@ -206,21 +207,25 @@ export function BucketApp() {
 
   async function shareBucket() {
     if (!draft || !shareUsername.trim()) return;
+    const username = shareUsername.trim().replace(/^@/, "");
     setIsSaving(true);
     try {
       const res = await fetch(`/api/buckets/${draft.id}/share`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: shareUsername.trim() }),
+        body: JSON.stringify({ username }),
       });
       const data = (await res.json()) as { bucket?: Bucket; error?: string };
       if (!res.ok || !data.bucket) throw new Error(data.error ?? "Unable to share");
       setBuckets((cur) => cur.map((b) => (b.id === data.bucket?.id ? data.bucket! : b)));
       setDraft(cloneBucket(data.bucket));
       setShareUsername("");
+      setShowShareModal(false);
       setStatus("Shared ✓");
       setStatusTone("success");
       setTimeout(() => setStatus(""), 1500);
+      // Open Telegram chat so owner can notify the user
+      window.Telegram?.WebApp?.openTelegramLink?.(`https://t.me/${username}`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Unable to share");
       setStatusTone("error");
@@ -268,7 +273,7 @@ export function BucketApp() {
       <div className="app-scroll">
         {draft ? (
           <>
-            {/* Title row: name + delete icon */}
+            {/* Title row: name + share + delete icons */}
             <div className="bucket-title-row">
               <input
                 className="bucket-name-input"
@@ -278,7 +283,22 @@ export function BucketApp() {
               />
               {isOwner && (
                 <button
-                  className="bucket-delete-btn"
+                  className="bucket-icon-btn"
+                  type="button"
+                  onClick={() => setShowShareModal(true)}
+                  aria-label="Share bucket"
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M3 15c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <circle cx="14" cy="4" r="1.5" fill="currentColor"/>
+                    <path d="M11.5 5.5L14 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              )}
+              {isOwner && (
+                <button
+                  className="bucket-icon-btn danger"
                   type="button"
                   onClick={() => void deleteBucket()}
                   disabled={isSaving}
@@ -290,6 +310,23 @@ export function BucketApp() {
                 </button>
               )}
             </div>
+
+            {/* Shared-with chips (read-only view, compact) */}
+            {draft.sharedWith.length > 0 && (
+              <div className="chip-list-compact">
+                {draft.sharedWith.map((u) => (
+                  <span key={u} className="chip-compact">
+                    @{u}
+                    {isOwner && (
+                      <button className="chip-remove-compact" type="button" onClick={() => void unshareBucket(u)}>×</button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            )}
+            {!isOwner && (
+              <p className="shared-by-label">Shared by @{draft.ownerUsername}</p>
+            )}
 
             {/* Checklist */}
             <div className="checklist">
@@ -335,40 +372,6 @@ export function BucketApp() {
             >
               + Add item
             </button>
-
-            {/* Compact sharing */}
-            <div className="share-section">
-              {isOwner ? (
-                <>
-                  <div className="share-row-compact">
-                    <input
-                      className="share-input-compact"
-                      value={shareUsername}
-                      onChange={(e) => setShareUsername(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") void shareBucket(); }}
-                      placeholder="Share with @username…"
-                    />
-                    {shareUsername.trim() && (
-                      <button className="share-btn-compact" type="button" onClick={() => void shareBucket()} disabled={isSaving}>
-                        Share
-                      </button>
-                    )}
-                  </div>
-                  {draft.sharedWith.length > 0 && (
-                    <div className="chip-list-compact">
-                      {draft.sharedWith.map((u) => (
-                        <span key={u} className="chip-compact">
-                          @{u}
-                          <button className="chip-remove-compact" type="button" onClick={() => void unshareBucket(u)}>×</button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="shared-by-label">Shared by @{draft.ownerUsername}</p>
-              )}
-            </div>
           </>
         ) : (
           <div className="empty-state">
@@ -402,6 +405,57 @@ export function BucketApp() {
           )}
         </div>
       </div>
+
+      {/* Share modal */}
+      {showShareModal && draft && (
+        <div className="modal-overlay" onClick={() => { setShowShareModal(false); setShareUsername(""); }}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-handle" />
+            <h2 className="modal-title">Share &ldquo;{draft.name}&rdquo;</h2>
+
+            <div className="modal-share-row">
+              <span className="modal-at">@</span>
+              <input
+                className="modal-share-input"
+                value={shareUsername}
+                onChange={(e) => setShareUsername(e.target.value.replace(/^@/, ""))}
+                onKeyDown={(e) => { if (e.key === "Enter") void shareBucket(); }}
+                placeholder="telegram_username"
+                autoFocus
+                autoCapitalize="none"
+                autoCorrect="off"
+              />
+            </div>
+
+            <p className="modal-hint">
+              After sharing, Telegram will open so you can send them a message.
+            </p>
+
+            {draft.sharedWith.length > 0 && (
+              <div className="modal-shared-list">
+                <p className="modal-shared-label">Already shared with</p>
+                <div className="chip-list-compact">
+                  {draft.sharedWith.map((u) => (
+                    <span key={u} className="chip-compact">
+                      @{u}
+                      <button className="chip-remove-compact" type="button" onClick={() => void unshareBucket(u)}>×</button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button
+              className="modal-share-btn"
+              type="button"
+              onClick={() => void shareBucket()}
+              disabled={isSaving || !shareUsername.trim()}
+            >
+              Share & Open Telegram
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
