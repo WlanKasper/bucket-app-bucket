@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Bucket, BucketItem, SessionUser } from "@/lib/types";
 
 interface BootstrapResponse {
@@ -23,10 +23,6 @@ function getTelegramBootstrapPayload(): { initDataRaw?: string } {
   return {};
 }
 
-function getTelegramPhotoUrl(): string | null {
-  if (typeof window === "undefined") return null;
-  return window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url ?? null;
-}
 
 function createEmptyItem(): BucketItem {
   return { id: crypto.randomUUID(), text: "", checked: false };
@@ -41,40 +37,9 @@ function cloneBucket(bucket: Bucket | null): Bucket | null {
   };
 }
 
-function ProgressRing({ checked, total }: { checked: number; total: number }) {
-  const r = 26;
-  const circ = 2 * Math.PI * r;
-  const pct = total > 0 ? checked / total : 0;
-  const dash = pct * circ;
-
-  return (
-    <svg className="progress-ring" width="64" height="64" viewBox="0 0 64 64">
-      <circle cx="32" cy="32" r={r} fill="none" stroke="#ede0f5" strokeWidth="4" />
-      <circle
-        cx="32"
-        cy="32"
-        r={r}
-        fill="none"
-        stroke="#a694ff"
-        strokeWidth="4"
-        strokeDasharray={`${dash} ${circ}`}
-        strokeLinecap="round"
-        transform="rotate(-90 32 32)"
-        style={{ transition: "stroke-dasharray 0.4s ease" }}
-      />
-      <text x="32" y="27" textAnchor="middle" fontSize="9" fill="#acacac" fontFamily="inherit">
-        Status
-      </text>
-      <text x="32" y="40" textAnchor="middle" fontSize="11" fontWeight="600" fill="#333" fontFamily="inherit">
-        {checked} of {total}
-      </text>
-    </svg>
-  );
-}
 
 export function BucketApp() {
   const [user, setUser] = useState<SessionUser | null>(null);
-  const [telegramPhotoUrl, setTelegramPhotoUrl] = useState<string | null>(null);
   const [buckets, setBuckets] = useState<Bucket[]>([]);
   const [selectedBucketId, setSelectedBucketId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Bucket | null>(null);
@@ -83,7 +48,6 @@ export function BucketApp() {
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<string>("Connecting…");
   const [statusTone, setStatusTone] = useState<"neutral" | "success" | "error">("neutral");
-  const descRef = useRef<HTMLTextAreaElement>(null);
 
   const selectedBucket = useMemo(
     () => buckets.find((b) => b.id === selectedBucketId) ?? null,
@@ -91,16 +55,6 @@ export function BucketApp() {
   );
 
   const isOwner = selectedBucket?.ownerTelegramId === user?.telegramUserId;
-  const checkedCount = draft?.items.filter((i) => i.checked).length ?? 0;
-  const totalCount = draft?.items.length ?? 0;
-
-  function autoResizeDesc() {
-    const el = descRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  }
-
   async function bootstrap() {
     setIsBootstrapping(true);
     setStatus("Connecting…");
@@ -115,7 +69,6 @@ export function BucketApp() {
       const data = (await res.json()) as BootstrapResponse & { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Unable to start session");
       setUser(data.user);
-      setTelegramPhotoUrl(getTelegramPhotoUrl());
       await refreshBuckets();
       setStatus(data.user.isDev ? "Dev mode active" : "Telegram session verified");
       setStatusTone("success");
@@ -165,7 +118,6 @@ export function BucketApp() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setDraft(cloneBucket(selectedBucket)); }, [selectedBucket]);
-  useEffect(() => { autoResizeDesc(); }, [draft?.description]);
 
   function updateDraft(updater: (current: Bucket) => Bucket) {
     setDraft((current) => (current ? updater(current) : current));
@@ -291,15 +243,6 @@ export function BucketApp() {
     }
   }
 
-  const avatarLetter = user?.firstName?.[0]?.toUpperCase() ?? user?.username?.[0]?.toUpperCase() ?? "?";
-
-  const avatarEl = telegramPhotoUrl ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={telegramPhotoUrl} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-  ) : (
-    avatarLetter
-  );
-
   if (isBootstrapping) {
     return (
       <div className="app-loading">
@@ -311,42 +254,6 @@ export function BucketApp() {
 
   return (
     <main className="app">
-      {/* Header: progress + bucket info + avatar */}
-      <div className="app-header">
-        <ProgressRing checked={checkedCount} total={totalCount} />
-        <div className="bucket-info">
-          {draft ? (
-            <>
-              <input
-                className="bucket-name-input"
-                value={draft.name}
-                onChange={(e) => updateDraft((c) => ({ ...c, name: e.target.value }))}
-                placeholder="Untitled"
-              />
-              <textarea
-                ref={descRef}
-                className="bucket-desc-input"
-                value={draft.description}
-                onChange={(e) => {
-                  updateDraft((c) => ({ ...c, description: e.target.value }));
-                  autoResizeDesc();
-                }}
-                placeholder="Write a description of the list here"
-                rows={1}
-              />
-            </>
-          ) : (
-            <>
-              <div className="bucket-name-input" style={{ color: "var(--muted)" }}>Bucket</div>
-              <div className="bucket-desc-input" style={{ color: "var(--muted)" }}>
-                {user?.isDev ? "Dev mode" : `@${user?.username ?? ""}`}
-              </div>
-            </>
-          )}
-        </div>
-        <div className="user-avatar">{avatarEl}</div>
-      </div>
-
       {/* Tab bar: + button + bucket tabs */}
       <div className="tab-bar">
         <button className="add-bucket-btn" onClick={() => void createBucket()} disabled={isSaving} title="New bucket">
@@ -491,6 +398,16 @@ export function BucketApp() {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Bucket name — bottom */}
+          <div className="bucket-name-bar">
+            <input
+              className="bucket-name-input"
+              value={draft.name}
+              onChange={(e) => updateDraft((c) => ({ ...c, name: e.target.value }))}
+              placeholder="Untitled"
+            />
           </div>
 
           {/* Action bar */}

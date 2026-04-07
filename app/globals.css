@@ -91,25 +91,6 @@ a {
 
 /* ── Header: progress + info + avatar ─────────────────── */
 
-.app-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 4px 0;
-}
-
-.progress-ring {
-  flex-shrink: 0;
-}
-
-.bucket-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .bucket-name-input {
   width: 100%;
   font-size: 1.2rem;
@@ -126,39 +107,8 @@ a {
   color: var(--muted);
 }
 
-.bucket-desc-input {
-  width: 100%;
-  font-size: 0.82rem;
-  color: var(--muted);
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 0;
-  resize: none;
-  line-height: 1.5;
-  min-height: 0;
-  height: auto;
-  overflow: hidden;
-}
-
-.bucket-desc-input::placeholder {
-  color: var(--muted);
-}
-
-.user-avatar {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #d3e2fe;
-  border: 2px solid var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--primary-dark);
-  overflow: hidden;
+.bucket-name-bar {
+  padding: 8px 0 4px;
 }
 
 /* ── Tab bar: + button + bucket tabs ───────────────────── */
