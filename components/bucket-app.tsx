@@ -51,6 +51,16 @@ export function BucketApp() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [isEditingItem, setIsEditingItem] = useState(false);
 
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    function handleResize() {
+      setIsEditingItem((window.visualViewport!.height / window.innerHeight) < 0.75);
+    }
+    vv.addEventListener("resize", handleResize);
+    return () => vv.removeEventListener("resize", handleResize);
+  }, []);
+
   const selectedBucket = useMemo(
     () => buckets.find((b) => b.id === selectedBucketId) ?? null,
     [buckets, selectedBucketId]
@@ -298,8 +308,6 @@ export function BucketApp() {
                             ),
                           }))
                         }
-                        onFocus={() => setIsEditingItem(true)}
-                        onBlur={() => setIsEditingItem(false)}
                         placeholder="Write a note or checklist item"
                       />
                       <button
