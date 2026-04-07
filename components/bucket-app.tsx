@@ -49,6 +49,7 @@ export function BucketApp() {
   const [status, setStatus] = useState<string>("Connecting…");
   const [statusTone, setStatusTone] = useState<"neutral" | "success" | "error">("neutral");
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const [isEditingItem, setIsEditingItem] = useState(false);
 
   const selectedBucket = useMemo(
     () => buckets.find((b) => b.id === selectedBucketId) ?? null,
@@ -297,6 +298,8 @@ export function BucketApp() {
                             ),
                           }))
                         }
+                        onFocus={() => setIsEditingItem(true)}
+                        onBlur={() => setIsEditingItem(false)}
                         placeholder="Write a note or checklist item"
                       />
                       <button
@@ -379,6 +382,7 @@ export function BucketApp() {
             </div>
 
             {/* Bucket name — bottom, with edit icon */}
+            {!isEditingItem && (
             <div className="bucket-name-bar">
               <button
                 className="bucket-name-edit-icon"
@@ -398,8 +402,10 @@ export function BucketApp() {
                 placeholder="Untitled"
               />
             </div>
+            )}
 
             {/* Action bar */}
+            {!isEditingItem && (
             <div className="action-bar">
               <button
                 className="btn btn-ghost"
@@ -428,6 +434,7 @@ export function BucketApp() {
                 </button>
               )}
             </div>
+            )}
           </>
         ) : (
           <div className="empty-state">
@@ -443,6 +450,7 @@ export function BucketApp() {
       </div>
 
       {/* Tab bar — fixed at bottom */}
+      {!isEditingItem && (
       <div className="tab-bar">
         <button className="add-bucket-btn" onClick={() => void createBucket()} disabled={isSaving} title="New bucket">
           +
@@ -465,6 +473,7 @@ export function BucketApp() {
           )}
         </div>
       </div>
+      )}
     </main>
   );
 }
