@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Bucket, BucketItem, SessionUser } from "@/lib/types";
 
 interface BootstrapResponse {
@@ -48,6 +48,7 @@ export function BucketApp() {
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<string>("Connecting…");
   const [statusTone, setStatusTone] = useState<"neutral" | "success" | "error">("neutral");
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const selectedBucket = useMemo(
     () => buckets.find((b) => b.id === selectedBucketId) ?? null,
@@ -254,7 +255,194 @@ export function BucketApp() {
 
   return (
     <main className="app">
-      {/* Tab bar: + button + bucket tabs */}
+      {/* Status message */}
+      <div className={`status-bar ${statusTone === "error" ? "error" : statusTone === "success" ? "success" : ""}`}>
+        {status}
+      </div>
+
+      {/* Scrollable content area */}
+      <div className="app-scroll">
+        {draft ? (
+          <>
+            {/* Checklist card */}
+            <div className="bucket-card">
+              <div className="card-section">
+                <div className="card-section-header">
+                  <span className="card-section-title">Checklist</span>
+                </div>
+
+                <div className="checklist">
+                  {draft.items.map((item) => (
+                    <div className="item-row" key={item.id}>
+                      <button
+                        className={`item-check ${item.checked ? "checked" : ""}`}
+                        type="button"
+                        onClick={() =>
+                          updateDraft((c) => ({
+                            ...c,
+                            items: c.items.map((e) =>
+                              e.id === item.id ? { ...e, checked: !e.checked } : e
+                            ),
+                          }))
+                        }
+                      />
+                      <input
+                        className={`item-text ${item.checked ? "checked-text" : ""}`}
+                        value={item.text}
+                        onChange={(e) =>
+                          updateDraft((c) => ({
+                            ...c,
+                            items: c.items.map((entry) =>
+                              entry.id === item.id ? { ...entry, text: e.target.value } : entry
+                            ),
+                          }))
+                        }
+                        placeholder="Write a note or checklist item"
+                      />
+                      <button
+                        className="item-remove"
+                        type="button"
+                        onClick={() =>
+                          updateDraft((c) => ({ ...c, items: c.items.filter((e) => e.id !== item.id) }))
+                        }
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  {draft.items.length === 0 && (
+                    <p className="empty-items">No items yet</p>
+                  )}
+                </div>
+
+                <button
+                  className="add-item-btn"
+                  type="button"
+                  onClick={() => updateDraft((c) => ({ ...c, items: [...c.items, createEmptyItem()] }))}
+                >
+                  + Add item
+                </button>
+              </div>
+
+              {/* Sharing section */}
+              <div className="card-section">
+                <div className="card-section-header">
+                  <span className="card-section-title">Sharing</span>
+                  <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+                    {isOwner ? "Owner" : `Shared by @${draft.ownerUsername}`}
+                  </span>
+                </div>
+
+                {isOwner ? (
+                  <>
+                    <div className="share-row">
+                      <input
+                        className="share-input"
+                        value={shareUsername}
+                        onChange={(e) => setShareUsername(e.target.value)}
+                        placeholder="@telegram_username"
+                        onKeyDown={(e) => { if (e.key === "Enter") void shareBucket(); }}
+                      />
+                      <button
+                        className="btn btn-ghost"
+                        style={{ padding: "10px 16px", flexShrink: 0 }}
+                        onClick={() => void shareBucket()}
+                        disabled={isSaving || !shareUsername.trim()}
+                        type="button"
+                      >
+                        Share
+                      </button>
+                    </div>
+                    {draft.sharedWith.length > 0 && (
+                      <div className="chip-list">
+                        {draft.sharedWith.map((username) => (
+                          <span key={username} className="chip">
+                            @{username}
+                            <button
+                              className="chip-remove"
+                              type="button"
+                              onClick={() => void unshareBucket(username)}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="shared-with-me">
+                    You can edit the content but only the owner can manage access.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Bucket name — bottom, with edit icon */}
+            <div className="bucket-name-bar">
+              <button
+                className="bucket-name-edit-icon"
+                type="button"
+                onClick={() => nameInputRef.current?.focus()}
+                aria-label="Edit bucket name"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.333 2a1.886 1.886 0 0 1 2.667 2.667L5.333 13.333 2 14l.667-3.333L11.333 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <input
+                ref={nameInputRef}
+                className="bucket-name-input"
+                value={draft.name}
+                onChange={(e) => updateDraft((c) => ({ ...c, name: e.target.value }))}
+                placeholder="Untitled"
+              />
+            </div>
+
+            {/* Action bar */}
+            <div className="action-bar">
+              <button
+                className="btn btn-ghost"
+                onClick={() => void refreshBuckets(draft.id)}
+                disabled={isSaving}
+                type="button"
+              >
+                ↺
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => void saveBucket()}
+                disabled={isSaving}
+                type="button"
+              >
+                Save changes
+              </button>
+              {isOwner && (
+                <button
+                  className="btn btn-danger"
+                  onClick={() => void deleteBucket()}
+                  disabled={isSaving}
+                  type="button"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="empty-state">
+            <div className="empty-state-title">Create your first bucket</div>
+            <p className="empty-state-subtitle">
+              Tap + to create a shared checklist or notes list.
+            </p>
+            <button className="btn btn-primary" onClick={() => void createBucket()} disabled={isSaving} type="button">
+              Create bucket
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Tab bar — fixed at bottom */}
       <div className="tab-bar">
         <button className="add-bucket-btn" onClick={() => void createBucket()} disabled={isSaving} title="New bucket">
           +
@@ -277,180 +465,6 @@ export function BucketApp() {
           )}
         </div>
       </div>
-
-      {/* Status message */}
-      <div className={`status-bar ${statusTone === "error" ? "error" : statusTone === "success" ? "success" : ""}`}>
-        {status}
-      </div>
-
-      {/* Content */}
-      {draft ? (
-        <>
-          {/* Checklist card */}
-          <div className="bucket-card">
-            <div className="card-section">
-              <div className="card-section-header">
-                <span className="card-section-title">Checklist</span>
-              </div>
-
-              <div className="checklist">
-                {draft.items.map((item) => (
-                  <div className="item-row" key={item.id}>
-                    <button
-                      className={`item-check ${item.checked ? "checked" : ""}`}
-                      type="button"
-                      onClick={() =>
-                        updateDraft((c) => ({
-                          ...c,
-                          items: c.items.map((e) =>
-                            e.id === item.id ? { ...e, checked: !e.checked } : e
-                          ),
-                        }))
-                      }
-                    />
-                    <input
-                      className={`item-text ${item.checked ? "checked-text" : ""}`}
-                      value={item.text}
-                      onChange={(e) =>
-                        updateDraft((c) => ({
-                          ...c,
-                          items: c.items.map((entry) =>
-                            entry.id === item.id ? { ...entry, text: e.target.value } : entry
-                          ),
-                        }))
-                      }
-                      placeholder="Write a note or checklist item"
-                    />
-                    <button
-                      className="item-remove"
-                      type="button"
-                      onClick={() =>
-                        updateDraft((c) => ({ ...c, items: c.items.filter((e) => e.id !== item.id) }))
-                      }
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                {draft.items.length === 0 && (
-                  <p className="empty-items">No items yet</p>
-                )}
-              </div>
-
-              <button
-                className="add-item-btn"
-                type="button"
-                onClick={() => updateDraft((c) => ({ ...c, items: [...c.items, createEmptyItem()] }))}
-              >
-                + Add item
-              </button>
-            </div>
-
-            {/* Sharing section */}
-            <div className="card-section">
-              <div className="card-section-header">
-                <span className="card-section-title">Sharing</span>
-                <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-                  {isOwner ? "Owner" : `Shared by @${draft.ownerUsername}`}
-                </span>
-              </div>
-
-              {isOwner ? (
-                <>
-                  <div className="share-row">
-                    <input
-                      className="share-input"
-                      value={shareUsername}
-                      onChange={(e) => setShareUsername(e.target.value)}
-                      placeholder="@telegram_username"
-                      onKeyDown={(e) => { if (e.key === "Enter") void shareBucket(); }}
-                    />
-                    <button
-                      className="btn btn-ghost"
-                      style={{ padding: "10px 16px", flexShrink: 0 }}
-                      onClick={() => void shareBucket()}
-                      disabled={isSaving || !shareUsername.trim()}
-                      type="button"
-                    >
-                      Share
-                    </button>
-                  </div>
-                  {draft.sharedWith.length > 0 && (
-                    <div className="chip-list">
-                      {draft.sharedWith.map((username) => (
-                        <span key={username} className="chip">
-                          @{username}
-                          <button
-                            className="chip-remove"
-                            type="button"
-                            onClick={() => void unshareBucket(username)}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="shared-with-me">
-                  You can edit the content but only the owner can manage access.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Bucket name — bottom */}
-          <div className="bucket-name-bar">
-            <input
-              className="bucket-name-input"
-              value={draft.name}
-              onChange={(e) => updateDraft((c) => ({ ...c, name: e.target.value }))}
-              placeholder="Untitled"
-            />
-          </div>
-
-          {/* Action bar */}
-          <div className="action-bar">
-            <button
-              className="btn btn-ghost"
-              onClick={() => void refreshBuckets(draft.id)}
-              disabled={isSaving}
-              type="button"
-            >
-              ↺
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => void saveBucket()}
-              disabled={isSaving}
-              type="button"
-            >
-              Save changes
-            </button>
-            {isOwner && (
-              <button
-                className="btn btn-danger"
-                onClick={() => void deleteBucket()}
-                disabled={isSaving}
-                type="button"
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="empty-state">
-          <div className="empty-state-title">Create your first bucket</div>
-          <p className="empty-state-subtitle">
-            Tap + to create a shared checklist or notes list.
-          </p>
-          <button className="btn btn-primary" onClick={() => void createBucket()} disabled={isSaving} type="button">
-            Create bucket
-          </button>
-        </div>
-      )}
     </main>
   );
 }
