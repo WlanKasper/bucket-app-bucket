@@ -57,12 +57,36 @@ a {
   height: var(--tg-viewport-stable-height, 100svh);
   display: flex;
   flex-direction: column;
-  padding: 16px 16px 24px;
+  padding: 16px 16px 0;
   padding-top: calc(var(--safe-top, 0px) + 16px + 5vh);
-  padding-bottom: calc(var(--safe-bottom, 0px) + 24px);
   gap: 14px;
 }
 
+.app-scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 14px;
+}
+
+.app-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ── Tab bar: + button + bucket tabs ───────────────────── */
+
+.tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  padding-bottom: calc(var(--safe-bottom, 0px) + 12px);
+  border-top: 1.5px solid var(--border);
+}
 /* ── Loading / booting state ───────────────────────────── */
 
 .app-loading {
@@ -91,25 +115,6 @@ a {
 
 /* ── Header: progress + info + avatar ─────────────────── */
 
-.app-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 4px 0;
-}
-
-.progress-ring {
-  flex-shrink: 0;
-}
-
-.bucket-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .bucket-name-input {
   width: 100%;
   font-size: 1.2rem;
@@ -120,54 +125,42 @@ a {
   outline: none;
   padding: 0;
   line-height: 1.3;
+  flex: 1;
+  min-width: 0;
 }
 
 .bucket-name-input::placeholder {
   color: var(--muted);
 }
 
-.bucket-desc-input {
-  width: 100%;
-  font-size: 0.82rem;
-  color: var(--muted);
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 0;
-  resize: none;
-  line-height: 1.5;
-  min-height: 0;
-  height: auto;
-  overflow: hidden;
-}
-
-.bucket-desc-input::placeholder {
-  color: var(--muted);
-}
-
-.user-avatar {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #d3e2fe;
-  border: 2px solid var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--primary-dark);
-  overflow: hidden;
-}
-
-/* ── Tab bar: + button + bucket tabs ───────────────────── */
-
-.tab-bar {
+.bucket-name-bar {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 0 4px;
 }
+
+.bucket-name-edit-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.bucket-name-edit-icon:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text);
+}
+
+
 
 .add-bucket-btn {
   flex-shrink: 0;
