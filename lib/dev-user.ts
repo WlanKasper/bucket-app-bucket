@@ -33,6 +33,10 @@ export function createLocalDevUser(overrides?: Partial<SessionUser>): SessionUse
 }
 
 export function isLocalDevRequest(request: Request): boolean {
+  if (process.env.ALLOW_DEV_SESSIONS === "true") {
+    return true;
+  }
+
   if (process.env.NODE_ENV === "production") {
     return false;
   }
