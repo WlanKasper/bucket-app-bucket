@@ -328,6 +328,7 @@ export function BucketApp() {
               </div>
 
               {/* Sharing section */}
+              {!isEditingItem && (
               <div className="card-section">
                 <div className="card-section-header">
                   <span className="card-section-title">Sharing</span>
@@ -379,6 +380,7 @@ export function BucketApp() {
                   </p>
                 )}
               </div>
+              )}
             </div>
 
             {/* Bucket name — bottom, with edit icon */}
